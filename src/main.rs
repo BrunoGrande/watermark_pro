@@ -1,3 +1,4 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // <-
 use eframe::egui;
 use image::{DynamicImage, ImageBuffer, Rgb}; // Added ImageBuffer and Rgb for RAW handling
 use std::path::{Path, PathBuf};
