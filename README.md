@@ -34,17 +34,20 @@ You will need [Rust](https://www.rust-lang.org/tools/install) installed.
 ````
 git clone https://github.com/yourusername/watermark\_pro.git
 ````
+\# Navegate into the Folder
+````
 cd watermark\_pro
-
-\# Run in Release mode (Critical for image processing speed\!)  
+````
+\# Run in Release mode (Critical for image processing speed\!)
+````
 cargo run \--release
-
+````
 ### **3\. Creating a Standalone Executable**
 
 To generate a standalone .exe file for Windows that hides the console window:
-
+````
 cargo build \--release
-
+````
 You will find the executable in target/release/watermark\_pro.exe.
 
 ## **🎮 How to Use**
