@@ -36,17 +36,17 @@ git clone https://github.com/yourusername/watermark\_pro.git
 ````
 \# Navegate into the Folder
 ````
-cd watermark\_pro
+cd watermark_pro
 ````
 \# Run in Release mode (Critical for image processing speed\!)
 ````
-cargo run \--release
+cargo run --release
 ````
 ### **3\. Creating a Standalone Executable**
 
 To generate a standalone .exe file for Windows that hides the console window:
 ````
-cargo build \--release
+cargo build --release
 ````
 You will find the executable in target/release/watermark\_pro.exe.
 
