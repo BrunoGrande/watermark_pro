@@ -31,9 +31,9 @@ If you have compiled the .exe, simply double-click watermark\_pro.exe. No instal
 You will need [Rust](https://www.rust-lang.org/tools/install) installed.
 
 \# Clone the repository  
-'''
+````
 git clonehttps://github.com/yourusername/watermark\_pro.git
-'''
+````
 cd watermark\_pro
 
 \# Run in Release mode (Critical for image processing speed\!)  
