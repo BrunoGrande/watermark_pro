@@ -32,7 +32,7 @@ You will need [Rust](https://www.rust-lang.org/tools/install) installed.
 
 \# Clone the repository  
 ````
-git clonehttps://github.com/yourusername/watermark\_pro.git
+git clone https://github.com/yourusername/watermark\_pro.git
 ````
 cd watermark\_pro
 
