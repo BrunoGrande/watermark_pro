@@ -1,4 +1,7 @@
-use image::{imageops, DynamicImage, GenericImageView};
+use image::{imageops, DynamicImage, RgbaImage};
+use fast_image_resize as fr;
+use fast_image_resize::images::Image;
+use fast_image_resize::{ResizeOptions, ResizeAlg, FilterType};
 
 pub fn apply_watermark(
     base: &DynamicImage,
@@ -8,36 +11,48 @@ pub fn apply_watermark(
     pos_x: f32,
     pos_y: f32,
 ) -> DynamicImage {
-    // --- 1. RESIZE (Equivalent to PIL .resize) ---
-    // Calculate new size based on the base image width
-    let new_width = (base.width() as f32 * scale) as u32;
-    // Maintain aspect ratio
-    let new_height = ((new_width as f32 / watermark.width() as f32) * watermark.height() as f32) as u32;
     
-    // Resize using Lanczos3 (high quality, same as your Python script)
-    let mut wm_resized = watermark.resize(new_width, new_height, image::imageops::FilterType::Lanczos3);
+    // 1. Calculate new dimensions
+    let new_width = ((base.width() as f32 * scale) as u32).max(1);
+    let new_height = (((new_width as f32 / watermark.width() as f32) * watermark.height() as f32) as u32).max(1);
 
-    // --- 2. OPACITY (Equivalent to PIL putalpha) ---
-    // In Rust, we iterate over the pixels to adjust alpha if needed
+    // 2. High-Speed Resize
+    let wm_width = watermark.width();
+    let wm_height = watermark.height();
+    
+    let mut src_buffer = watermark.to_rgba8(); 
+
+    let src_image = Image::from_slice_u8(
+        wm_width, 
+        wm_height, 
+        src_buffer.as_mut(),
+        fr::PixelType::U8x4
+    ).unwrap();
+
+    let mut dst_image = Image::new(new_width, new_height, src_image.pixel_type());
+
+    let mut resizer = fr::Resizer::new();
+    let options = ResizeOptions::new().resize_alg(ResizeAlg::Convolution(FilterType::Lanczos3));
+    resizer.resize(&src_image, &mut dst_image, &options).unwrap();
+
+    let mut wm_resized = RgbaImage::from_raw(new_width, new_height, dst_image.into_vec()).unwrap();
+
+    // 3. Apply Opacity
     if opacity < 1.0 {
-        // We ensure the image is in RGBA format to access the alpha channel
-        if let Some(rgba_img) = wm_resized.as_mut_rgba8() {
-            for pixel in rgba_img.pixels_mut() {
-                // Scale the current alpha value by the opacity factor
-                let new_alpha = (pixel[3] as f32 * opacity) as u8;
-                pixel[3] = new_alpha;
-            }
+        for pixel in wm_resized.pixels_mut() {
+            let new_alpha = (pixel[3] as f32 * opacity) as u8;
+            pixel[3] = new_alpha;
         }
     }
 
-    // --- 3. POSITION (Equivalent to calculating x/y) ---
+    // 4. Calculate Position
     let max_x = base.width().saturating_sub(wm_resized.width());
     let max_y = base.height().saturating_sub(wm_resized.height());
     
     let x = (max_x as f32 * pos_x) as i64;
     let y = (max_y as f32 * pos_y) as i64;
 
-    // --- 4. OVERLAY (Equivalent to canvas.paste) ---
+    // 5. Overlay
     let mut final_image = base.clone();
     imageops::overlay(&mut final_image, &wm_resized, x, y);
     
